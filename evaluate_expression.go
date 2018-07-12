@@ -94,24 +94,7 @@ func eval(text string) int {
 				val, err := operator_stack.Peek()
 				if err == nil {
 					if val.(string) != "[" {
-						op, _ := operator_stack.Pop()
-						val2, _ := val_stack.Pop()
-						val1, _ := val_stack.Pop()
-						val_2, _ := val2.(int)
-						val_1, _ := val1.(int)
-						op = op.(string)
-						var val int
-						switch (op) {
-						case "+":
-							val = val_1 + val_2
-						case "-":
-							val = val_1 - val_2
-						case "*":
-							val = val_1 * val_2
-						case "/":
-							val = val_1 / val_2
-						}
-						val_stack.Push(val)
+						apply_operation(operator_stack, val_stack)
 					} else {
 						operator_stack.Pop()
 						break
@@ -127,24 +110,7 @@ func eval(text string) int {
 				val, _ := operator_stack.Peek()
 
 				if operator_stack.Len() != 0 && (precedence(val.(string))) >= precedence(token) {
-					op, _ := operator_stack.Pop()
-					val2, _ := val_stack.Pop()
-					val1, _ := val_stack.Pop()
-					val_2, _ := val2.(int)
-					val_1, _ := val1.(int)
-					op = op.(string)
-					var val int
-					switch (op) {
-					case "+":
-						val = val_1 + val_2
-					case "-":
-						val = val_1 - val_2
-					case "*":
-						val = val_1 * val_2
-					case "/":
-						val = val_1 / val_2
-					}
-					val_stack.Push(val)
+					apply_operation(operator_stack, val_stack)
 				} else {
 					operator_stack.Push(token)
 					break
@@ -158,27 +124,31 @@ func eval(text string) int {
 		if operator_stack.Len() == 0 {
 			break
 		}
-		op, _ := operator_stack.Pop()
-		val2, _ := val_stack.Pop()
-		val1, _ := val_stack.Pop()
-		val_2, _ := val2.(int)
-		val_1, _ := val1.(int)
-		op = op.(string)
-		var val int
-		switch (op) {
-		case "+":
-			val = val_1 + val_2
-		case "-":
-			val = val_1- val_2
-		case "*":
-			val = val_1 * val_2
-		case "/":
-			val = val_1 / val_2
-		}
-		val_stack.Push(val)
+		apply_operation(operator_stack, val_stack)
 	}
 	rVal, _ := val_stack.Peek()
 	return rVal.(int)
+}
+
+func apply_operation(operator_stack *stack, val_stack *stack) {
+	op, _ := operator_stack.Pop()
+	val2, _ := val_stack.Pop()
+	val1, _ := val_stack.Pop()
+	val_2, _ := val2.(int)
+	val_1, _ := val1.(int)
+	op = op.(string)
+	var val int
+	switch (op) {
+	case "+":
+		val = val_1 + val_2
+	case "-":
+		val = val_1 - val_2
+	case "*":
+		val = val_1 * val_2
+	case "/":
+		val = val_1 / val_2
+	}
+	val_stack.Push(val)
 }
 
 func main() {
