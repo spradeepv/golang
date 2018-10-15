@@ -1,41 +1,9 @@
-package main
+package expression
 
 import (
-	"fmt"
-	"errors"
-	"bufio"
-	"os"
+	"github.com/spradeepv/golang/ds"
 	"strconv"
 )
-
-type stack []interface{}
-
-func (s *stack) Push(value interface{}) {
-	*s = append(*s, value)
-}
-
-func (s *stack) Pop() (interface{}, error) {
-	temp, err := s.Peek()
-	if err != nil {
-		return 0.0, err
-	}
-
-	*s = (*s)[0 : len(*s)-1]
-
-	return temp, nil
-}
-
-func (s *stack) Peek() (interface{}, error) {
-	if len(*s) == 0 {
-		return 0.0, errors.New("stack is empty")
-	}
-
-	return (*s)[len(*s)-1], nil
-}
-
-func (s *stack) Len() int {
-	return len(*s)
-}
 
 func isNumber(token string) (int, bool) {
 	i, err := strconv.Atoi(token)
@@ -65,19 +33,17 @@ func precedence(op string) int {
 	return 0
 }
 
-func eval(text string) int {
-	var val_stack = &stack{}
-	var operator_stack = &stack{}
+func Eval(text string) int {
+	var val_stack = &ds.Stack{}
+	var operator_stack = &ds.Stack{}
 	for i := 0; i < len(text); i++ {
 		token := string(text[i])
-		// fmt.Println("Token: ", token)
-
 		// Skip space
 		if token == " " {
 			continue
 		} else if _, isDigit := isNumber(token); isDigit {
 			val := 0
-			for (i < len(text)) {
+			for i < len(text) {
 				if v, isDigit := isNumber(string(text[i])); isDigit {
 					val = (val * 10) + v
 					i++
@@ -118,8 +84,8 @@ func eval(text string) int {
 			}
 		}
 	}
-	// fmt.Println("Val_Stack: ", *val_stack)
-	// fmt.Println("Ops_Stack: ", *operator_stack)
+	//fmt.Println("Val_Stack: ", *val_stack)
+	//fmt.Println("Ops_Stack: ", *operator_stack)
 	for {
 		if operator_stack.Len() == 0 {
 			break
@@ -130,7 +96,7 @@ func eval(text string) int {
 	return rVal.(int)
 }
 
-func apply_operation(operator_stack *stack, val_stack *stack) {
+func apply_operation(operator_stack *ds.Stack, val_stack *ds.Stack) {
 	op, _ := operator_stack.Pop()
 	val2, _ := val_stack.Pop()
 	val1, _ := val_stack.Pop()
@@ -138,7 +104,7 @@ func apply_operation(operator_stack *stack, val_stack *stack) {
 	val_1, _ := val1.(int)
 	op = op.(string)
 	var val int
-	switch (op) {
+	switch op {
 	case "+":
 		val = val_1 + val_2
 	case "-":
@@ -149,11 +115,4 @@ func apply_operation(operator_stack *stack, val_stack *stack) {
 		val = val_1 / val_2
 	}
 	val_stack.Push(val)
-}
-
-func main() {
-	reader := bufio.NewReader(os.Stdin)
-	text, _ := reader.ReadString('\n')
-	// fmt.Println("TEXT :: ", text)
-	fmt.Println("Result: ", eval(text))
 }
