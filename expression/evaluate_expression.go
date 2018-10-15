@@ -34,8 +34,8 @@ func precedence(op string) int {
 }
 
 func Eval(text string) int {
-	var val_stack = &ds.Stack{}
-	var operator_stack = &ds.Stack{}
+	var valStack = &ds.Stack{}
+	var operatorStack = &ds.Stack{}
 	for i := 0; i < len(text); i++ {
 		token := string(text[i])
 		// Skip space
@@ -51,34 +51,34 @@ func Eval(text string) int {
 					break
 				}
 			}
-			val_stack.Push(val)
+			valStack.Push(val)
 			i--
 		} else if token == "[" {
-			operator_stack.Push(token)
+			operatorStack.Push(token)
 		} else if token == "]" {
 			for {
-				val, err := operator_stack.Peek()
+				val, err := operatorStack.Peek()
 				if err == nil {
 					if val.(string) != "[" {
-						apply_operation(operator_stack, val_stack)
+						applyOperation(operatorStack, valStack)
 					} else {
-						operator_stack.Pop()
+						operatorStack.Pop()
 						break
 					}
 				}
 			}
 		} else if isOperator(token) {
 			for {
-				if operator_stack.Len() == 0 {
-					operator_stack.Push(token)
+				if operatorStack.Len() == 0 {
+					operatorStack.Push(token)
 					break
 				}
-				val, _ := operator_stack.Peek()
+				val, _ := operatorStack.Peek()
 
-				if operator_stack.Len() != 0 && (precedence(val.(string))) >= precedence(token) {
-					apply_operation(operator_stack, val_stack)
+				if operatorStack.Len() != 0 && (precedence(val.(string))) >= precedence(token) {
+					applyOperation(operatorStack, valStack)
 				} else {
-					operator_stack.Push(token)
+					operatorStack.Push(token)
 					break
 				}
 			}
@@ -87,32 +87,32 @@ func Eval(text string) int {
 	//fmt.Println("Val_Stack: ", *val_stack)
 	//fmt.Println("Ops_Stack: ", *operator_stack)
 	for {
-		if operator_stack.Len() == 0 {
+		if operatorStack.Len() == 0 {
 			break
 		}
-		apply_operation(operator_stack, val_stack)
+		applyOperation(operatorStack, valStack)
 	}
-	rVal, _ := val_stack.Peek()
+	rVal, _ := valStack.Peek()
 	return rVal.(int)
 }
 
-func apply_operation(operator_stack *ds.Stack, val_stack *ds.Stack) {
-	op, _ := operator_stack.Pop()
-	val2, _ := val_stack.Pop()
-	val1, _ := val_stack.Pop()
-	val_2, _ := val2.(int)
-	val_1, _ := val1.(int)
+func applyOperation(operatorStack *ds.Stack, valStack *ds.Stack) {
+	op, _ := operatorStack.Pop()
+	val2Str, _ := valStack.Pop()
+	val1Str, _ := valStack.Pop()
+	val2, _ := val2Str.(int)
+	val1, _ := val1Str.(int)
 	op = op.(string)
 	var val int
 	switch op {
 	case "+":
-		val = val_1 + val_2
+		val = val1 + val2
 	case "-":
-		val = val_1 - val_2
+		val = val1 - val2
 	case "*":
-		val = val_1 * val_2
+		val = val1 * val2
 	case "/":
-		val = val_1 / val_2
+		val = val1 / val2
 	}
-	val_stack.Push(val)
+	valStack.Push(val)
 }
